@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Jul 12 10:09:23 2022l
+Created on Tue Jul 12 10:09:23 2022   kjhgvjhv
 fit catalogue
 @author: s1929920
 """
