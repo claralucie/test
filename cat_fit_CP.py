@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Jul 12 10:09:23 2022   kjhgvjhv
+Created on Tue Jul 12 10:09:23 2022
 fit catalogue
 @author: s1929920
 """
@@ -37,7 +37,7 @@ def load_data3(ID):
     cat.index = cat["ID"].values
     
     #define row numbers
-    row = int(ID) - 1
+    row = int(ID) #-1
     
     #create list of fluxes and their associated errors that we want to see
     #must be in same order as filt_list
@@ -47,7 +47,7 @@ def load_data3(ID):
     #select all rows and specific columns of data from table using lists above. Write all as floats 
     fluxes = (cat.loc[row, flux_list]).astype(float)
     fluxerrs = (cat.loc[row, fluxerr_list]).astype(float)
-    
+        
     #translate slice objects to  contatenation along second axis
     photometry = np.c_[fluxes, fluxerrs]
     
@@ -98,9 +98,10 @@ fit_instructions["redshift"] = (0., 10.)    #vary observed redshift from 0 to 10
 fit_instructions["exponential"] = exp
 fit_instructions["dust"] = dust
 
-IDs = np.arange(1, 4)
 
-fit_cat = pipes.fit_catalogue(IDs, fit_instructions, load_data3, spectrum_exists=False,
-                              cat_filt_list=filt_list, run="guo_cat")
+IDs = np.arange(1,100)
 
+
+fit_cat = pipes.fit_catalogue(IDs, fit_instructions, load_data = load_data3, spectrum_exists=False, cat_filt_list=filt_list, run="guo_cat")
 fit_cat.fit(verbose=False)
+
