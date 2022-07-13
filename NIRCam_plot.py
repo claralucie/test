@@ -53,7 +53,7 @@ def plot_primer_pointing(ax, v2_ref, v3_ref, ra_ref, dec_ref, v3pa, color="red")
         ax.add_patch(line)
         
     #sub arrays for nircam sw
-    aperfill = ['NRCB1_FULL','NRCB2_FULL','NRCB3_FULL','NRCB4_FULL','NRCA1_FULL','NRCA2_FULL','NRCA3_FULL','NRCA4_FULL']
+    aperfill = ['NRCA1_FULL','NRCA2_FULL','NRCA3_FULL','NRCA4_FULL','NRCB1_FULL','NRCB2_FULL','NRCB3_FULL','NRCB4_FULL']
 
     for i in aperfill:
         lw = nrc_siaf[i]
@@ -187,7 +187,12 @@ for i in range(len(RA_list)):
 ax.scatter(RA_grey, DEC_grey, color="gray", alpha=0.8, s=2, lw=0)
 ax.scatter(RA_red, DEC_red, color="red", alpha=0.8, s=2, lw=0)
 
-        
+pd.options.display.max_rows = 234
+df = pd.read_csv('MAST_egs.csv', header=4, usecols=('s_ra', 's_dec'))        
+RA_list = df.iloc[:,0]
+DEC_list = df.iloc[:,1]
+
+ax.scatter(RA_list, DEC_list, color="blue", alpha = 1.0, marker = 'o', s=10, lw=0)
 
 ax.set_xlabel("RA")
 plt.ylabel("DEC")
@@ -204,7 +209,8 @@ plot_master_apertures(mark_ref=True)
 plt.show()
 """
 #---------------------------------------------------------------------------------------------------------------
-#plot targets from mast data
+#plot mast data
+"""
 pd.options.display.max_rows = 234
 
 df = pd.read_csv('MAST_egs.csv', header=4, usecols=('s_ra', 's_dec'))
@@ -220,5 +226,5 @@ plt.xlabel('RA')
 plt.ylabel('Dec')
 
 plt.show()
-
+"""
 
