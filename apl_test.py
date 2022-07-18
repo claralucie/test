@@ -201,6 +201,8 @@ for i in range(1):
     
     cut = cutout(ra, dec, mos, size=size)
     
+    #plt.imshow(cut)
+    
     all_axes[-1][i].imshow(np.flipud(cut), cmap="binary_r",
                            norm=Normalize(vmin=np.percentile(cut, 0.5),
                                           vmax=np.percentile(cut, 99.5)))
@@ -222,7 +224,7 @@ all_axes[-1][0].set_ylabel(str(size) + "$^\{prime\prime}$ x" + str(size) + "$^{\
 
 #plt.savefig("cutout_277.fits", bbox_inches="tight")
 #cutout.writeto('cutout_277.fits', overwrite=True)
-plt.show()
+#plt.show()
 """
 #---------------------------------------------------------------------------------------------
 fig = plt.figure(figsize=(10,20))

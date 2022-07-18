@@ -106,7 +106,7 @@ all_axes = []
 
 ra = 214.86608 #214.76063 #214.86608 #214.89566 #214.9887625
 dec = 52.88423 #52.84534 #52.88423 #52.85652 #52.9905416667 
-size = 8
+size = 4
 
 j = 0
 
@@ -142,4 +142,8 @@ all_axes[-1][0].set_ylabel(str(size) + "$^\{prime\prime}$ x" + str(size) + "$^{\
 #plt.savefig("cutouts.pdf", bbox_inches="tight")
 plt.show
 #plt.close()
+
+print(cutout.data)
+#hdu = fits.PrimaryHDU(data=cutout.data, header=cutout.wcs.to_header())
+#hdu.writeto('cropped_file.fits')
 
