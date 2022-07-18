@@ -41,15 +41,18 @@ mask = np.zeros(cat.shape[0]).astype(bool)
 pd.options.display.max_rows = 234
 
 df = pd.read_csv('MAST_egs.csv', header=4, usecols=('s_ra', 's_dec'))
+print(df)
 
 RA_list = df.iloc[:,0]
 DEC_list = df.iloc[:,1]
 
 fig = plt.figure(figsize=(20, 12))
 ax = plt.subplot()
+
 ax.scatter(cat["RA"], cat["DEC"], color="gray", alpha=0.8, s=1, lw=0)
-#RA, DEC = zip(*sorted(zip(RA, DEC)))
+
 plt.scatter(RA_list, DEC_list, color="red", alpha = 1.0, marker = 'o', s=10, lw=0)
+
 plt.title('JWST MAST plottings over CEERS')
 plt.xlabel('RA')
 plt.ylabel('Dec')
