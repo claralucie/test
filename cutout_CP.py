@@ -32,10 +32,10 @@ def cutout(ra, dec, mos, size=5.):
     wcs.sip = None
     
     if "CD1_1" in list(mos[1].header):
-        cdelt = np.abs(mos[1].header["CD1_1"]*5000.)
+        cdelt = np.abs(mos[1].header["CD1_1"]*3600.)
         
     elif "CDELT1" in list(mos[1].header):
-        cdelt = np.abs(mos[1].header["CDELT1"]*5000.)
+        cdelt = np.abs(mos[1].header["CDELT1"]*3600.)
         
     coord = SkyCoord(ra=ra, dec=dec, unit="deg")
     
@@ -104,8 +104,8 @@ gs = mpl.gridspec.GridSpec(10,7, wspace= 0.05, hspace=0.2)
 
 all_axes = []
 
-ra = 214.86608 #214.76063 #214.86608 #214.89566 #214.9887625
-dec = 52.88423 #52.84534 #52.88423 #52.85652 #52.9905416667 
+ra = 214.89566 #214.76063 #214.86608 #214.89566 #214.9887625
+dec = 52.85652 #52.84534 #52.88423 #52.85652 #52.9905416667 
 size = 4
 
 j = 0
@@ -139,11 +139,27 @@ for i in range(7):
 
 all_axes[-1][0].set_ylabel(str(size) + "$^\{prime\prime}$ x" + str(size) + "$^{\prime\prime}$")
 
+hdu = fits.PrimaryHDU(data=cutout.data, header=mos[1].header)
+hdu.header.update(cutout.wcs.to_header())
+hdu.writeto('test1_14727.fits', overwrite=True)
+
 #plt.savefig("cutouts.pdf", bbox_inches="tight")
 plt.show
 #plt.close()
 
-print(cutout.data)
+
+#cutout = Cutout2D(mos[1].data, position, size, wcs=wcs)
+"""
+cheader = cutout.wcs.to_header()
+primaryhdu = fits.PrimaryHDU(cutout.data, cheader)
+hdulist = fits.HDUList([primaryhdu])
+hdulist.writeto('please_work3.fits', overwrite=True)
+  
+hdu = fits.PrimaryHDU(data=cutout.data, header=mos[1].header)
+hdu.header.update(cutout.wcs.to_header())
+hdu.writeto('test1_14727.fits', overwrite=True)
+"""
+#print(cutout.data)
 #hdu = fits.PrimaryHDU(data=cutout.data, header=cutout.wcs.to_header())
 #hdu.writeto('cropped_file.fits')
 
