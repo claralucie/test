@@ -51,14 +51,14 @@ def cutout(ra, dec, mos, size=5.):
     return cutout
 
 #filters = ["F115W", "F150W", "F200W", "F277W", "F356W", "F410M", "F444W"]
-filters = []
+filters = ["WFC3 F105W", "WFC3 F125W", "WFC3 F140W", "WFC3 F160W", "ACS F606W", "ACS F814W"]
 
-images1 = ["egs_all_acs_wfc_f814w_030mas_v1.9_drz.fits",
-           "egs_all_acs_wfc_f606w_030mas_v1.9_drz.fits",
-           "egs_all_wfc3_ir_f105w_030mas_v1.9_drz.fits",
+images1 = ["egs_all_wfc3_ir_f105w_030mas_v1.9_drz.fits",
            "egs_all_wfc3_ir_f125w_030mas_v1.9_drz.fits",
            "egs_all_wfc3_ir_f140w_030mas_v1.9_drz.fits",
-           "egs_all_wfc3_ir_f160w_030mas_v1.9_drz.fits"]
+           "egs_all_wfc3_ir_f160w_030mas_v1.9_drz.fits",
+           "egs_all_acs_wfc_f814w_030mas_v1.9_drz.fits",
+           "egs_all_acs_wfc_f606w_030mas_v1.9_drz.fits"]
 """
 images1 =  ["jwst_ceers_first_nircam_f115w_microJy_swarped.fits",
             "jwst_ceers_first_nircam_f150w_microJy_swarped.fits",
@@ -71,9 +71,9 @@ images1 =  ["jwst_ceers_first_nircam_f115w_microJy_swarped.fits",
 fig = plt.figure(figsize=(10,20))
 gs = mpl.gridspec.GridSpec(10,7, wspace= 0.05, hspace=0.2)
 
-ra = 214.86608 
-dec = 52.88423 
-size = 3.15
+ra = 214.866033 
+dec = 52.8842528 
+size = 8
 
 all_axes = []
 
@@ -81,11 +81,12 @@ axes = plt.subplot(1, 1, 1)
 mos = fits.open(images1[5])
 cut = cutout(ra, dec, mos, size)
 
-circle = plt.Circle((80, 80), 5, color='red', fill=False)
-fig = plt.gcf()
-axes = fig.gca()
+#circle = plt.Circle((125, 125), 2.93779, color='red', fill=False)
+#fig = plt.gcf()
+#axes = fig.gca()
 
-axes.add_patch(circle)
+#axes.add_patch(circle)
+
 axes.imshow(np.flipud(cut.data), cmap='binary_r',
             norm = Normalize(vmin=np.percentile(cut.data, 0.5),
             vmax=np.percentile(cut.data,99.0)))
@@ -95,6 +96,6 @@ plt.close()
 
 hdu = fits.PrimaryHDU(data=cut.data, header=mos[0].header)
 hdu.header.update(cut.wcs.to_header())
-#hdu.writeto('swarped_24177_115.fits', overwrite=True)
+hdu.writeto('hst_24177_large_606.fits', overwrite=True)
 
 #----------------------------------------------------------------------

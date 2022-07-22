@@ -30,7 +30,7 @@ import os
 #path = "/storage/teaching/SummerProjects2022/s1929920/MAST_2022-07-15T0707/JWST"
 #os.chdir(path)
 
-path = "/storage/teaching/SummerProjects2022/s1929920/derek_ceers_200722"
+path = "/storage/teaching/SummerProjects2022/s1929920/derek_ceers_210722"
 os.chdir(path)
 
 def cutout(ra, dec, mos, size=5.):
@@ -115,8 +115,8 @@ fig = plt.figure(figsize=(10,20))
 gs = mpl.gridspec.GridSpec(10,7, wspace= 0.05, hspace=0.2)
 
 #ID 10084 214.89284, 52.83085 14:19:34.2816, 52:49:51.06
-#long swirl 214.9388125, 52.9543444
-#bright spiral 214.981708333, 52.99869444   ID 30405 redshift z=1.17954
+#long swirl 214.9388125, 52.9543444 // 214.938617, 52.95426
+#bright spiral 214.981708333, 52.99869444   no it's not ID 30405 redshift z=1.17954
 #circ spiral 214.906433333, 52.919169444    ID 25668 redshift z=2.3042
 #large 215.000308333, 52.988558333
 #double 214.915158333, 52.9189638889
@@ -126,7 +126,7 @@ gs = mpl.gridspec.GridSpec(10,7, wspace= 0.05, hspace=0.2)
 #swirly boy = (214.905408, 52.896125) #14:19:37.29792, 52:53:46.05
 #pos_LONG = (214.970696, 52.9617528)
 #pos_long2 = (214.911546, 52.914025)
-#position_24177 = (214.86608, 52.88423) #14:19:27.8592, 52:53:3.228
+#position_24177 = (214.86608, 52.88423) #14:19:27.8592, 52:53:3.228 // 21/07/22 214.866033, 52.8842528
 #position-14727 = (214.89556, 52.85652)
 #position-28830 = (214.76063, 52.84534)
 
@@ -145,15 +145,14 @@ gs = mpl.gridspec.GridSpec(10,7, wspace= 0.05, hspace=0.2)
 #25727 214.79395, 52.84155
 
 
-
-ra = 214.86608
-dec = 52.88423
-size = 5
+ra = 215.000308333#9063
+dec = 52.988558333#91914
+size = 10
 
 all_axes = []
 
 axes = plt.subplot(1, 1, 1)
-mos = fits.open(images1[1])
+mos = fits.open(images1[6])
 cut = cutout(ra, dec, mos, size)
 #wcs = WCS(mos[1].header)
 
@@ -162,35 +161,16 @@ axes.imshow(np.flipud(cut.data), cmap='binary_r',
             vmax=np.percentile(cut.data,99.0)))
 
 "FWHM for WFC3 is 1.219 pix or 0.151 arcsec for 1600nm"
-"0.151 arcsec = 0.00004194 degrees"
+"0.151 arcsec = 0.00004194 degrees, 4.1944e-05"
 
 w=cut.wcs
-skycoord = (214.5, 52.5)
-x, y = w.world_to_pixel(skycoord)
-print(x, y)
-
-"""
-sky1 = w.pixel_to_world(80, 80)
-print(sky1)
-#sky2 = w.pixel_to_world(80+0.6095, 80+0.6095)
-#print(sky2)
-
-sky2 = (214.86608, 52.88423)
-x, y = w.world_to_pixel(sky2)
-print(x, y)
-"""
-circle = plt.Circle((80, 80), 1.219, color='red', fill=False)
-fig = plt.gcf()
-axes = fig.gca()
-
-axes.add_patch(circle)
 
 plt.show()
 plt.close()
 
 hdu = fits.PrimaryHDU(data=cut.data, header=mos[0].header)
 hdu.header.update(cut.wcs.to_header())
-#hdu.writeto('28955_444.fits', overwrite=True)
+#hdu.writeto('bright_spiral_444.fits', overwrite=True)
 
 #----------------------------------------------------------------------
 
