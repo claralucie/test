@@ -28,11 +28,11 @@ img3 = galfit_test[3]
 #plt.imshow(img1.data)
 
 
-x,y = np.meshgrid(np.arange(40), np.arange(40))
+x,y = np.meshgrid(np.arange(80), np.arange(80))
 
 #mod = Gaussian2D(amplitude = 20, x_mean = 50, y_mean = 50, x_stddev = 0.208, y_stddev = 0.5, theta = 1.57) #x_stddev=0.8, y_stddev=1.3, theta=-1, cov_matrix=None)
 
-mod = Sersic2D(amplitude = 10, r_eff = 1, n=4, x_0=20, y_0=20, ellip=0.1, theta=0)
+mod = Sersic2D(amplitude = 80, r_eff = 2, n=1, x_0=40, y_0=40, ellip=0.3, theta=-0.5)
 
 img = mod(x, y)
 log_img = np.log10(img)
@@ -46,3 +46,6 @@ cbar = plt.colorbar()
 cbar.set_label('Log Brightness', rotation=270, labelpad=25)
 cbar.set_ticks([-1, 0, 1, 2], update_ticks=True)
 plt.show()
+
+#--------------
+
