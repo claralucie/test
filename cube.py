@@ -16,11 +16,11 @@ from astropy.wcs import WCS
 #path = "/storage/teaching/SummerProjects2022/s1929920/MAST_2022-07-15T0707/JWST"
 #os.chdir(path)
 
-#path = "/storage/teaching/SummerProjects2022/s1929920/derek_ceers_210722"
-#os.chdir(path)
-
-path = "/storage/teaching/SummerProjects2022/s1929920/hst"
+path = "/storage/teaching/SummerProjects2022/s1929920/derek_ceers_210722"
 os.chdir(path)
+
+#path = "/storage/teaching/SummerProjects2022/s1929920/hst"
+#os.chdir(path)
 
 #hdul = fits.open('please_work.fits')
 #hdul = fits.open('test_cutout.fits')
@@ -36,8 +36,8 @@ filters = ["WFC3 F105W", "WFC3 F125W", "WFC3 F140W", "WFC3 F160W", "ACS F606W", 
 
 #gc2 = aplpy.FITSFigure('24177_3.fits')
 #gc2.show_colorscale()
-cube = aplpy.make_rgb_cube(['hst_24177_large_160.fits', 'hst_24177_large_140.fits', 'hst_24177_large_125.fits'], 'hst_24177_large_cube.fits')
-#cube = aplpy.make_rgb_cube(['large_24177_444.fits', 'large_24177_200.fits', 'large_24177_150.fits'], 'large_24177_cube2.fits')
+cube = aplpy.make_rgb_cube(['z16_size2_356.fits', 'z16_size2_277.fits', 'z16_size2_200.fits'], 'z16_size2_cube.fits')
+#cube = aplpy.make_rgb_cube(['z16_size2_356.fits', 'z16_size2_277.fits', 'z16_size2_200.fits'], 'z16_size2_cube.fits')
 
 #cube = aplpy.make_rgb_cube(['28955_356.fits', '28955_277.fits', '28955_150.fits'], '28955_cube.fits')
 
@@ -51,8 +51,9 @@ cube = aplpy.make_rgb_cube(['hst_24177_large_160.fits', 'hst_24177_large_140.fit
 #gc3 = aplpy.FITSFigure('24177_cube_2d.fits')
 #gc3.show_colorscale()
 
-#im = aplpy.rgb.make_rgb_image('large_24177_cube2.fits', 'large_24177_rgb2.png', stretch_r = 'linear', stretch_g = 'linear', stretch_b = 'linear')
-im = aplpy.rgb.make_rgb_image('hst_24177_large_cube.fits', 'hst_24177_large_rgb.png', stretch_r = 'power', stretch_g = 'power', stretch_b = 'power')
+im = aplpy.rgb.make_rgb_image('z16_size2_cube.fits', 'z16_size2_rgb.png', stretch_r = 'power', stretch_g = 'power', stretch_b = 'power',
+                              pmin_r = 0, pmin_g=99, pmin_b=99) #, exponent_r = 0.75, exponent_g = 1.5, exponent_b = 1)
+#im = aplpy.rgb.make_rgb_image('red_triangle_cube.fits', 'red_triangle_rgb.png', stretch_r = 'power', stretch_g = 'power', stretch_b = 'power')
 
 #im = aplpy.rgb.make_rgb_image('24177_cube2.fits', '24177_rgb2.png', indices=(0, 1, 2))
 
@@ -63,8 +64,8 @@ im = aplpy.rgb.make_rgb_image('hst_24177_large_cube.fits', 'hst_24177_large_rgb.
 #g.show_colorscale(stretch='power')
 rad = 0.151/3600
 
-#f = aplpy.FITSFigure('bright_spiral_rgb.png')
-f = aplpy.FITSFigure('hst_24177_large_rgb.png')
+f = aplpy.FITSFigure('z16_size2_rgb.png')
+#f = aplpy.FITSFigure('red_triangle_rgb.png')
 
 f.show_rgb()
 #f.show_circles(214.866033, 52.8842528, rad, coords_frame='world', color='red')

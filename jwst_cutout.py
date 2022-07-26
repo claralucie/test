@@ -145,36 +145,35 @@ gs = mpl.gridspec.GridSpec(10,7, wspace= 0.05, hspace=0.2)
 #25727 214.79395, 52.84155
 
 
-ra = 215.000308333#9063
-dec = 52.988558333#91914
-size = 10
+ra = 214.914515  #98943    #14:19:39.4836
+dec = 52.943033    #98838    #52:56:34.9188
+size = 2
 
 all_axes = []
 
 axes = plt.subplot(1, 1, 1)
-mos = fits.open(images1[6])
+
+
+mos = fits.open(images1[1])
 cut = cutout(ra, dec, mos, size)
 #wcs = WCS(mos[1].header)
 
 axes.imshow(np.flipud(cut.data), cmap='binary_r',
             norm = Normalize(vmin=np.percentile(cut.data, 0.5),
-            vmax=np.percentile(cut.data,99.0)))
-
-"FWHM for WFC3 is 1.219 pix or 0.151 arcsec for 1600nm"
-"0.151 arcsec = 0.00004194 degrees, 4.1944e-05"
-
-w=cut.wcs
+                             vmax=np.percentile(cut.data, 90)))
 
 plt.show()
 plt.close()
 
+filters = ['115', '150', '200', '277', '356', '410', '444']
+
 hdu = fits.PrimaryHDU(data=cut.data, header=mos[0].header)
 hdu.header.update(cut.wcs.to_header())
-#hdu.writeto('bright_spiral_444.fits', overwrite=True)
+
+hdu.writeto('z16_size2_150.fits', overwrite=True)
 
 #----------------------------------------------------------------------
-
-
+#w=cut.wcs
 #daofind = DAOStarFinder #(fwhm=3.0, threshold=5. * std)
 """
 peak = find_peaks(hdu.data, 1.1)

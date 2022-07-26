@@ -71,14 +71,14 @@ images1 =  ["jwst_ceers_first_nircam_f115w_microJy_swarped.fits",
 fig = plt.figure(figsize=(10,20))
 gs = mpl.gridspec.GridSpec(10,7, wspace= 0.05, hspace=0.2)
 
-ra = 214.866033 
-dec = 52.8842528 
-size = 8
+ra = 214.98881    #866033 
+dec = 52.98858    #8842528 
+size = 5
 
 all_axes = []
 
 axes = plt.subplot(1, 1, 1)
-mos = fits.open(images1[5])
+mos = fits.open(images1[3])
 cut = cutout(ra, dec, mos, size)
 
 #circle = plt.Circle((125, 125), 2.93779, color='red', fill=False)
@@ -89,13 +89,13 @@ cut = cutout(ra, dec, mos, size)
 
 axes.imshow(np.flipud(cut.data), cmap='binary_r',
             norm = Normalize(vmin=np.percentile(cut.data, 0.5),
-            vmax=np.percentile(cut.data,99.0)))
+            vmax=np.percentile(cut.data,99.9)))
 
 plt.show()
 plt.close()
 
 hdu = fits.PrimaryHDU(data=cut.data, header=mos[0].header)
 hdu.header.update(cut.wcs.to_header())
-hdu.writeto('hst_24177_large_606.fits', overwrite=True)
+hdu.writeto('red_triangle_277.fits', overwrite=True)
 
 #----------------------------------------------------------------------
