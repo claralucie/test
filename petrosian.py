@@ -149,6 +149,7 @@ cbar.set_label('Log Brightness', rotation=270, labelpad=25)
 cbar.set_ticks([-1, 0, 1, 2], update_ticks=True)
 plt.show()
 
+"""
 import webbpsf
 
 nc = webbpsf.NIRCam()
@@ -162,3 +163,20 @@ plt.imshow(psf[0].data)             # display it on screen yourself, or
 #nc.calc_psf("myPSF.fits", filter='F480M')
 #-------------------
 #psf_sersic_model = PSFConvolvedModel2D(sersic_mod, psf=PSF, oversample=4)
+"""
+
+from petrofit.segmentation import make_catalog, plot_segments
+from astropy.stats import sigma_clipped_stats
+
+# Sigma clipped stats
+image_mean, image_median, image_stddev = sigma_clipped_stats(image.data, sigma=3)
+
+cat, segm, segm_deblend = make_catalog(
+    image=image.data,  # Input image
+    threshold=image_stddev*3,  # Detection threshold
+    deblend=True,  # Deblend sources?
+    kernel_size=3,  # Smoothing kernel size in pixels
+    fwhm=3,  # FWHM in pixels
+    npixels=4**2,  # Minimum number of pixels that make up a source
+    plot=True, vmax=vmax, vmin=vmin # Plotting params
+)
