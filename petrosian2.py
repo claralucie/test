@@ -13,6 +13,15 @@ from astropy.nddata import Cutout2D
 from astropy.wcs import WCS
 from astropy.nddata import CCDData
 
+from photutils.isophote import EllipseGeometry, Ellipse
+from astropy.modeling import models
+
+from petrofit.petrosian import Petrosian, PetrosianCorrection
+from petrofit.photometry import order_cat, make_radius_list, source_photometry
+from petrofit.segmentation import (make_catalog, plot_segments, plot_segment_residual,
+                                   get_source_position, get_source_elong, get_source_theta,
+                                   get_source_ellip, get_amplitude_at_r)
+
 """
 def one_over_eta(rs, fs, R):
     return ((np.pi*R**2)/np.sum(fs[rs<=R]))*(fs[rs==R])
@@ -38,6 +47,7 @@ def petrosian_Re(R_50, R_90):
 path = "/storage/teaching/SummerProjects2022/s1929920/derek_ceers_210722"
 os.chdir(path)
 
+#-------------------------------------IMPORT IMAGE ---------------------------------
 image = CCDData.read("24177_444.fits", unit="deg")
 #image = fits.open("bright_spiral_444.fits")
 #print(image[0].data)
@@ -46,6 +56,8 @@ image = CCDData.read("24177_444.fits", unit="deg")
 
 vmax = image.data.std() # Use the image std as max and min of all plots
 vmin = - vmax
+
+#---------------------------------NOISE // DARK PATCH----------------------------------------
 
 noise_cutout_pos = (130,130)
 noise_cutout_size = (30)
@@ -67,6 +79,7 @@ n, bins, patches = plt.hist(noise_cutout.data.flatten(), bins=35, align='left', 
 plt.plot(bins[:-1], n, c='r', linewidth=3)
 plt.axvline(noise_mean, label="noise_mean", linestyle="--")
 
+#----------------------------------NOISE HISTOGRAM ----------------------------------------------
 plt.xlabel('Flux Bins [{}]'.format(str(image.unit)))
 plt.ylabel('Count')
 plt.title('Noise Histogram')
@@ -77,7 +90,7 @@ plt.show()
 # Define detect threshold
 threshold = noise_8_sigma
 
-# Define smoothing kernel
+# Define smoothing kernel - is this necessary? I don't think so
 kernel_size = 3
 fwhm = 3
 npixels = 4**2
@@ -85,7 +98,7 @@ npixels = 4**2
 #sigma = fwhm * gaussian_fwhm_to_sigma
 #kernel = Gaussian2DKernel(sigma, x_size=kernel_size, y_size=kernel_size)
 
-from petrofit.segmentation import make_catalog, plot_segments
+#-------------------------------SEGMENTATION----------------------------------------------------
 
 cat, segm, segm_deblend = make_catalog(
     image.data,
@@ -96,31 +109,29 @@ cat, segm, segm_deblend = make_catalog(
     npixels=npixels,
     plot=True, vmax=vmax, vmin=vmin
 )
-#print("Number of targets: ", len(cat))
 
-#plot_segments(segm_deblend, image=image.data, vmax=vmax, vmin=vmin)
+#plot_segments(segm_deblend, image=image.data, vmax=vmax, vmin=vmin) # I think this should separate the objects?
 
-from petrofit.segmentation import plot_segment_residual
+
 plot_segment_residual(segm, image.data, vmax=vmax/5)
 
-#----------------------------------PETROSIAN---------------------------------
-from petrofit.photometry import order_cat
+#----------------------------------PLOT ONE PETROSIAN APERTURE---------------------------------
+#largest object
 
 # Sort and get the largest object in the catalog
 sorted_idx_list = order_cat(cat, key='area', reverse=True)
-idx = sorted_idx_list[1] # index 0 is largest
+idx = sorted_idx_list[0] # index 0 is largest
 source = cat[idx]  # get source from the catalog
 
-from petrofit.photometry import make_radius_list
-
+#list of radii needed to construct apertures - needed for curve of growth
 r_list = make_radius_list(
     max_pix=50, # Max pixel to go up to
     n=50 # the number of radii to produce
 )
 
-from petrofit.photometry import source_photometry
 
-# Photomerty
+# Photometry
+#Plots Image and Aperture radius, and Curve of Growth
 flux_arr, area_arr, error_arr = source_photometry(
 
     # Inputs
@@ -137,23 +148,25 @@ flux_arr, area_arr, error_arr = source_photometry(
 )
 plt.show()
 
-from petrofit.petrosian import Petrosian
+
 
 p = Petrosian(r_list, area_arr, flux_arr)
 
+#----------------------------VALUES // PETROSIAN RADIUS, FLUX ETC. ---------------------------
+
 """petrosian radius"""
-#print(p.r_petrosian) # in pixels
+#print("Petrosian radius in pixels: " , p.r_petrosian) # in pixels
 
 """petrosian total flux radius"""
-#print(p.r_total_flux) # pixels
-#print(p.r_total_flux_arcsec(image.wcs)) #arcsec
+#print("Petrosian total flux radius (pixels): ", p.r_total_flux) # pixels
+#print("Petrosian total flux radius (arcsec): ", p.r_total_flux_arcsec(image.wcs)) #arcsec
 
 """petrosian half light radius"""
-#print(p.r_half_light) #pixels
-#print(p.r_half_light_arcsec(image.wcs)) #arcsec
+#print("Petrosian half light radius (pixels): ", p.r_half_light) #pixels
+#print("Petrosian half light radius (arcsec): ", p.r_half_light_arcsec(image.wcs)) #arcsec
 
 """fraction of flux radius"""
-#print(p.fraction_flux_to_r(fraction=0.6)) #pixels 
+#print("Fraction of flux radius (pixels): ", p.fraction_flux_to_r(fraction=0.6)) #pixels 
 
 #r_20, r_80, c2080 = p.concentration_index()
 #print(r_20, r_80, c2080) #radii in pixels
@@ -166,14 +179,12 @@ r_50, r_90, c5090 = p.concentration_index(
 print(r_50, r_90, c5090) #radii in pixels
 """
 
-from petrofit.segmentation import (get_source_position, get_source_elong, get_source_theta,
-                                   get_source_ellip, get_amplitude_at_r)
-
 
 position = get_source_position(source)
 elong = get_source_elong(source)
 theta = get_source_theta(source)
 
+#plots one aperture on image
 p.imshow(position=position, elong=elong, theta=theta, lw=1.25)
 
 plt.imshow(image.data, vmax=vmax, vmin=vmin)
@@ -181,12 +192,9 @@ plt.imshow(image.data, vmax=vmax, vmin=vmin)
 plt.legend()
 plt.show()
 
-"""find estimated n sersic index?"""
 
-
-#-------------------------------multiple targets-----------------------------------------------
+#-------------------------------PLOTTING MULTIPLE APERTURES---------------------------------
 #photometry loop 
-from petrofit.petrosian import PetrosianCorrection 
 
 max_pix=35
 
@@ -223,8 +231,7 @@ for idx, source in enumerate(cat):
 
 print("Completed for {} Sources".format(len(petrosian_properties)))
 
-from photutils.isophote import EllipseGeometry, Ellipse
-from astropy.modeling import models
+
 
 # AstroPy Model List
 model_list = []
@@ -288,17 +295,35 @@ for source in list(petrosian_properties.keys()):
 plt.imshow(image.data, vmax=vmax, vmin=vmin)
 plt.show()
 
-#-----------------------------------------------------------------------------------
-import webbpsf
+#-----------------CORRECTION GRID // PETROSIAN GRAPH------------------------------------------------------------------
 
-nc = webbpsf.NIRCam()
-nc.filter =  'F444W'
-psf = nc.calc_psf(oversample=4)     # returns an astropy.io.fits.HDUlist containing PSF and header
-plt.imshow(psf[0].data)             # display it on screen yourself, or
-#webbpsf.display_psf(psf)            # use this convenient function to make a nice log plot with labeled axes
-     
-#psf = nc.calc_psf(filter='F470N', oversample=4)    # this is just a shortcut for setting the filter, then computing a PSF
-     
-#nc.calc_psf("myPSF.fits", filter='F480M')
-#-------------------
-#psf_sersic_model = PSFConvolvedModel2D(sersic_mod, psf=PSF, oversample=4)
+path = "/home/s1929920/jwst/psf_lw"
+os.chdir(path)
+
+pc = PetrosianCorrection("f444w_correction_grid.yaml")
+
+estimated_n = pc.estimate_n(
+    p.r_half_light,
+    p.concentration_index()[-1]
+)
+
+#print(estimated_n)
+
+estimated_epsilon = pc.estimate_epsilon(
+    p.r_half_light,
+    p.concentration_index()[-1]
+)
+
+#print(estimated_epsilon)
+
+p_corrected = Petrosian(
+    p.r_list,
+    p.area_list,
+    p.flux_list,
+    epsilon=estimated_epsilon,
+)
+p_corrected.plot(plot_r=True, plot_normalized_flux=True)
+
+print("Uncorrected Flux = {}".format(p.total_flux * image.unit))
+print("Corrected Flux = {}".format(p_corrected.total_flux * image.unit))
+
