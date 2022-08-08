@@ -46,31 +46,16 @@ from petrosian3_single import (read_image, noise_cutout, plot_noise, segmentatio
 """
 import petrosian3_single as p3
 
-#path = "/storage/teaching/SummerProjects2022/s1929920/derek_ceers_210722/petrofit_cutouts"
-#os.chdir(path)
-#image_list = sorted(os.listdir(path))
-
+path = "/storage/teaching/SummerProjects2022/s1929920/derek_ceers_210722/petrofit_cutouts"
+os.chdir(path)
+image_list = sorted(os.listdir(path))
+print(len(image_list))
 
 #for i in range(0,10):
 #    print(image_list[i])
-path = "/home/s1929920/jwst"
-os.chdir(path)
 
-dfid = pd.read_csv('z3_catalogue.csv', usecols=["ID"])
-ID = dfid["ID"]
-image_list150 = []
-image_list444 = []
 
-for i in range(len(ID)):
-    image_list150.append(str(ID[i]) + "_F150W.fits")
-    image_list150.append(str(ID[i]) + "_F444W.fits")
-  
-print(len(image_list150))
-
-path = "/storage/teaching/SummerProjects2022/s1929920/derek_ceers_210722/petrofit_cutouts"
-os.chdir(path)
-
-df2 = pd.DataFrame(np.zeros((1056, 16)), columns = ['read', 'vmax', 'vmin', 'cut', 'plot', 'noise_8_sigma',
+df2 = pd.DataFrame(np.zeros((5406, 16)), columns = ['read', 'vmax', 'vmin', 'cut', 'plot', 'noise_8_sigma',
                                                  'segment', 'deblend', 'categ', 'objects1', 'radius_list',
                                                  'source1', 'curve', 'estim_epsilon', 'p_corrected_test',
                                                  'estim_n'])
@@ -114,35 +99,20 @@ categ = np.zeros(10)
 #source1 = np.zeros(10)
 curve = np.zeros(10)
 """
-path = "/home/s1929920/jwst"
-os.chdir(path)
-data = pd.read_csv("z3_catalogue_fit.csv", usecols=["ID", "RA", "DEC", "redshift_50", "stellar_mass_50",
-                                                    "r_eff_150", "sersic_n_150", "r_eff_444", "sersic_n_444"])
-df3 = pd.DataFrame(data)
 
-r_eff = []
-
-for i in range(1, 1057, 2):
-    
-    path = "/storage/teaching/SummerProjects2022/s1929920/derek_ceers_210722/petrofit_cutouts"
-    os.chdir(path)
-        
-    df2.iat[i,0] = p3.read_image(image_list150[i]) #read
-    
+for i in range(1,19,2):
+    df2.iat[i,0] = p3.read_image(image_list[i]) #read
     df2.iat[i,1] = (df2.iat[i,0]).data.std() #vmax
     df2.iat[i,2] = -(df2.iat[i,1]) #vmin
-    #print(df2.iat[i,2])
-    df2.iat[i,3] = p3.noise_cutout(df2.iat[i,0], (20,20), 20) #cut
+    df2.iat[i,3] = p3.noise_cutout(df2.iat[i,0], (20,80), 20) #cut
     df2.iat[i,4] = p3.plot_noise(df2.iat[i,0], df2.iat[i,3], df2.iat[i,1], df2.iat[i,2]) #plot
     df2.iat[i,5] = df2.iat[i,4] #noise_8_sigma
-        
+    
     try:
         df2.iat[i,6] = (p3.segmentation(df2.iat[i,0], df2.iat[i,5], df2.iat[i,1], df2.iat[i,2])) #segment
-    
     except ValueError:
-        print("an error occurred")
-    
-    else:
+        print("ValueError occurred")
+    else:    
         #print("segment:" , df2.iat[i,6])
         df2.iat[i,7] = df2.iat[i,6][2] #deblend
         df2.iat[i,8] = df2.iat[i,6][0] # categ
@@ -166,7 +136,8 @@ for i in range(1, 1057, 2):
         plot[i] = p3.plot_noise(read, cut1, vmax1[i], vmin1[i])
         noise_8_sigma_1[i] = plot[i]
         threshold1[i] = noise_8_sigma_1[i]
-        
+        """
+        """
         segment=(p3.segmentation(read, threshold1[i], vmax1[i], vmin1[i]))
         deblend = segment[2]
         categ = segment[0]
@@ -180,9 +151,6 @@ for i in range(1, 1057, 2):
         
         pcorr = PetrosianCorrection("f444w_correction_grid.yaml")
         
-        path = "/home/s1929920/jwst"
-        os.chdir(path)
-        
         #estim_epsilon
         df2.iat[i,13] = pcorr.estimate_epsilon((df2.iat[i,12]).r_half_light, (df2.iat[i,12]).concentration_index()[-1])
         
@@ -192,34 +160,61 @@ for i in range(1, 1057, 2):
                                   (df2.iat[i,12]).flux_list,
                                   epsilon = df2.iat[i,13])
         
-        df2.iat[i,14].plot(plot_r=False, plot_normalized_flux=False)
+        df2.iat[i,14].plot(plot_r=True, plot_normalized_flux=True)
         plt.show()
         
         #estim_n
         df2.iat[i,15] = pcorr.estimate_n((df2.iat[i,12]).r_half_light, (df2.iat[i,12]).concentration_index()[-1])
         #estimated_n = pc.estimate_n(
-        #p.r_half_light,
-        #p.concentration_index()[-1]
-        
-        print("testing new: index is ", i, "effective radius is ", df2.iat[i,14].r_half_light)
-        
-        
-        r_eff.append(df2.iat[i,14].r_half_light)
-        
-        #print(r_eff)
+    #    p.r_half_light,
+    #    p.concentration_index()[-1]
+    
+        print("testing new: index is ", i, df2.iat[i,14].r_half_light)
         
         
-        #df.loc[(i-1)/2, "r_eff_444"] = df2.iat[i,14].r_half_light
-        #df.loc[(i-1)/2, "sersic_n_444"] = df2.iat[i, 15]
-        df3.loc[(i-1)/2, "r_eff_444"] = df2.iat[i,14].r_half_light
-        df3.loc[(i-1)/2, "sersic_n_444"]= df2.iat[i,15]
+        path = "/home/s1929920/jwst"
+        os.chdir(path)
+        
+        data = pd.read_csv("important_info_petro.csv", usecols=["ID", "RA", "DEC", "redshift_50", "stellar_mass_50",
+                                                                  "r_eff_150", "sersic_n_150", "r_eff_444", "sersic_n_444"])
+        df = pd.DataFrame(data)
+        
+        df.loc[(i-1)/2, "r_eff_444"] = df2.iat[i,14].r_half_light
+        df.loc[(i-1)/2, "sersic_n_444"] = df2.iat[i, 15]
+        #df.loc[i/2, "r_eff_150"] = df2.iat[i,14].r_half_light
+        #df.loc[i/2, "sersic_n_150" ]= df2.iat[i,15]
         
         #df.loc[0, "sersic_n"] = p3.estimated_n()
-        df3.to_csv('z3_catalogue_fit.csv', header=True, index=None, sep=',', mode='w')
-  
-
-#path = "/home/s1929920/jwst"
-#os.chdir(path)
+        df.to_csv('petro5_TEST.csv', header=True, index=None, sep=',', mode='w')
         
+        path = "/storage/teaching/SummerProjects2022/s1929920/derek_ceers_210722/petrofit_cutouts"
+        os.chdir(path)
+    """
+    #estim_epsilon = np.zeros(10)
+    estim_epsilon = pcorr.estimate_epsilon(curve.r_half_light, curve.concentration_index()[-1])
+    
+    #p_corrected_test = np.zeros(10)
+    
+    p_corrected_test  = Petrosian(
+        curve.r_list,
+        curve.area_list,
+        curve.flux_list,
+        epsilon=estim_epsilon ,
+    )
+    p_corrected_test.plot(plot_r=True, plot_normalized_flux=True)
+    plt.show()
+    
+    print("testing new: ", p_corrected_test .r_half_light)
+    """
+"""
+path = "/home/s1929920/jwst"
+os.chdir(path)
 
-        
+data = pd.read_csv("important_info_petro3_TEST.csv", usecols=["ID", "RA", "DEC", "redshift_50", "stellar_mass_50",
+                                                              "r_eff_150", "sersic_n_150", "r_eff_444", "sersic_n_444"])
+df = pd.DataFrame(data)
+
+#df.loc[1, "r_eff_444"] = p_corrected_test.r_half_light
+#df.loc[0, "sersic_n"] = p3.estimated_n()
+df.to_csv('important_info_petro3_TEST.csv', header=True, index=None, sep=',', mode='w')
+"""

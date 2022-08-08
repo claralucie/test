@@ -48,12 +48,11 @@ image_list = sorted(os.listdir(path))
 def read_image(filename):
     image = CCDData.read(filename, unit="deg")
     return image
-"""
 
-image = read_image(image_list[7])
+
+image = read_image(image_list[1899])
 vmax = image.data.std()
 vmin = -vmax
-"""
 
 """
 for a in range(85,90):
@@ -73,12 +72,12 @@ for i in range(10):
 """
 #---------------------------------NOISE // DARK PATCH----------------------------------------
 def noise_cutout(image, pos, size):
-    #pos = (20,80)
+    #pos = (20,20)
     size = 20
     return Cutout2D(image, pos, size)
 
 
-def plot_noise(image, noise_cutout, vmax, vmin):
+def plot_noise(noise_cutout):
     noise_mean = noise_cutout.data.mean()
     noise_sigma = noise_cutout.data.std()
     noise_3_sigma = noise_sigma * 3.
@@ -88,7 +87,7 @@ def plot_noise(image, noise_cutout, vmax, vmin):
     plt.title("Dark Patch")
     plt.xlabel("Pixels")
     plt.ylabel("Pixels")
-    #plt.show()
+    plt.show()
 
     n, bins, patches = plt.hist(noise_cutout.data.flatten(), bins=35, align='left', color='black')
     plt.plot(bins[:-1], n, c='r', linewidth=3)
@@ -100,15 +99,15 @@ def plot_noise(image, noise_cutout, vmax, vmin):
     plt.title('Noise Histogram')
     plt.legend()
     
-    #plt.show()
+    plt.show()
     
     return noise_8_sigma
 
 #===========================plot noise cutout image and histogram=====================================
-#cut = noise_cutout(image, (20,80), 20)
-#noise_8_sigma = (plot_noise(cut, vmax, vmin))
+cut = noise_cutout(image, (80,80), 20)
+noise_8_sigma = (plot_noise(cut))
 # Define detect threshold
-#threshold = noise_8_sigma
+threshold = noise_8_sigma
 
 # Define smoothing kernel 
 kernel_size = 3
@@ -120,7 +119,7 @@ npixels = 4**2
 
 #-----------------------------------SEGMENTATION----------------------------------------------------
 
-def segmentation(image, threshold, vmax, vmin):
+def segmentation(image):
     cat, segm, segm_deblend = make_catalog(image.data, threshold, deblend=True,
                                            kernel_size=kernel_size, fwhm=fwhm,
                                            npixels=npixels, plot=True, vmax=vmax, vmin=vmin)
@@ -130,9 +129,9 @@ def segmentation(image, threshold, vmax, vmin):
 #plot_segments(segm_deblend, image=image.data, vmax=vmax, vmin=vmin) # I think this should separate the objects?
 
 #===============================plot segmentation plots===============================================
-#seg = segmentation(image, threshold, vmax, vmin)
-#segm_deblend = seg[2]
-#cat = seg[0]
+seg = segmentation(image)
+segm_deblend = seg[2]
+cat = seg[0]
 
 #----------------------------------SORT OBJECTS IN CATALOGUE---------------------------------
 #largest object
@@ -150,11 +149,11 @@ def objects(cat):
     return r_list, source
 
 #===============================set values for radius list and source=============================================
-#rad_list = (objects(cat))[0]
-#source = objects(cat)[1]
+rad_list = (objects(cat))[0]
+source = objects(cat)[1]
 
 #----------------------------------------CURVE OF GROWTH---------------------------------------------------
-def curve_of_growth(segm_deblend, rad_list, image, source, vmax, vmin):
+def curve_of_growth(segm_deblend, rad_list):
     
     # Photometry
     #Plots Image and Aperture radius, and Curve of Growth
@@ -170,18 +169,18 @@ def curve_of_growth(segm_deblend, rad_list, image, source, vmax, vmin):
         cutout_size=max(rad_list)*2, # Cutout out size, set to double the max radius
         bkg_sub=True, # Subtract background
         sigma=3, sigma_type='clip', # Fit a 2D plane to pixels within 3 sigma of the mean
-        plot=False, vmax=vmax, vmin=vmin) # Show plot with max and min defined above
+        plot=True, vmax=vmax, vmin=vmin) # Show plot with max and min defined above
     
-    #plt.show()
+    plt.show()
 
     p = Petrosian(rad_list, area_arr, flux_arr)
     return p
 
 #================================== set p==========================================================
-#p = curve_of_growth(segm_deblend, rad_list, image, source)
+p = curve_of_growth(segm_deblend, rad_list)
 
 #----------------------------VALUES // PETROSIAN RADIUS, FLUX ETC. -------------------------------
-"""
+
 def petrosian_radius():
     return p.r_petrosian 
 
@@ -193,8 +192,8 @@ def half_light_radius():
 
 def frac_flux_radius():
     return p.fraction_flux_to_r(fraction = 0.6)
-"""
-#print("HALF LIGHT RADIUS/ EFFECTIVE RADIUS: ", half_light_radius())
+
+print("HALF LIGHT RADIUS/ EFFECTIVE RADIUS: ", half_light_radius())
 
 #----------------------------------CONCENTRATION INDICES--------------------------------------
 
@@ -213,7 +212,7 @@ os.chdir(path)
 pc = PetrosianCorrection("f444w_correction_grid.yaml")
 
 #=========================values // epsilon, radii, theta, n //===================================
-"""
+
 def estimated_n():
     return pc.estimate_n(p.r_half_light, p.concentration_index()[-1])
 
@@ -264,9 +263,18 @@ print("CORRECTED HALF LIGHT RADIUS/ EFFECTIVE RADIUS r_eff: " , corrected_r_eff(
 
 path = "/home/s1929920/jwst"
 os.chdir(path)
-"""
-#data = pd.read_csv("important_info_petro3.csv", usecols=["ID", "RA", "DEC", "redshift_50", "stellar_mass_50", "r_eff_150", "sersic_n_150", "r_eff_444", "sersic_n_444"])
-#df = pd.DataFrame(data)
+
+data = pd.read_csv("important_info_petro3.csv", usecols=["ID", "RA", "DEC", "redshift_50", "stellar_mass_50", "r_eff_150", "sersic_n_150", "r_eff_444", "sersic_n_444"])
+df = pd.DataFrame(data)
+
+   
+"""   
+df.loc[i, "r_eff_150"] = df2.iat[i,14].r_half_light
+df.loc[i, "sersic_n_150" ]= df2.iat[i,15]
+    
+#df.loc[0, "sersic_n"] = p3.estimated_n()
+df.to_csv('important_info_petro3_TEST.csv', header=True, index=None, sep=',', mode='w')
+   """ 
 """
 df.loc[2, "r_eff_444"] = corrected_r_eff()
 df.loc[2, "sersic_n_444"] = estimated_n()

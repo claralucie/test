@@ -145,8 +145,8 @@ gs = mpl.gridspec.GridSpec(10,7, wspace= 0.05, hspace=0.2)
 #25727 214.79395, 52.84155
 
 
-ra = 214.914515  #98943    #14:19:39.4836
-dec = 52.943033    #98838    #52:56:34.9188
+ra = 215.039074 #98943    #14:19:39.4836
+dec = 53.002678    #98838    #52:56:34.9188
 size = 2
 
 all_axes = []
@@ -160,7 +160,7 @@ cut = cutout(ra, dec, mos, size)
 
 axes.imshow(np.flipud(cut.data), cmap='binary_r',
             norm = Normalize(vmin=np.percentile(cut.data, 0.5),
-                             vmax=np.percentile(cut.data, 90)))
+                             vmax=np.percentile(cut.data, 99.9))) #can change autocut here
 
 plt.show()
 plt.close()
@@ -170,7 +170,7 @@ filters = ['115', '150', '200', '277', '356', '410', '444']
 hdu = fits.PrimaryHDU(data=cut.data, header=mos[0].header)
 hdu.header.update(cut.wcs.to_header())
 
-hdu.writeto('z16_size2_150.fits', overwrite=True)
+hdu.writeto('passive3_small_150.fits', overwrite=True)
 
 #----------------------------------------------------------------------
 #w=cut.wcs
