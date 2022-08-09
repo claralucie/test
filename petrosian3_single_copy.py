@@ -28,7 +28,7 @@ from petrofit.segmentation import (make_catalog, plot_segments, plot_segment_res
                                    get_source_ellip, get_amplitude_at_r)
 
 
-path = "/storage/teaching/SummerProjects2022/s1929920/derek_ceers_210722/petrofit_cutouts"
+path = "/storage/teaching/SummerProjects2022/s1929920/derek_ceers_210722"#"/petrofit_cutouts"
 os.chdir(path)
 
 
@@ -38,19 +38,19 @@ image = CCDData.read("10109_F444W.fits", unit="deg")
 vmax = image.data.std() # Use the image std as max and min of all plots
 vmin = - vmax
 """
-path = "/storage/teaching/SummerProjects2022/s1929920/derek_ceers_210722/petrofit_cutouts"
+path = "/storage/teaching/SummerProjects2022/s1929920/derek_ceers_210722"#"/petrofit_cutouts"
 image_list = sorted(os.listdir(path))
 
 #a = list(range(100, 110))
 
-
+filename = "aug09_4b_F444W.fits"
 
 def read_image(filename):
     image = CCDData.read(filename, unit="deg")
     return image
 
-
-image = read_image(image_list[1899])
+image = read_image(filename)
+#image = read_image(image_list[1899])
 vmax = image.data.std()
 vmin = -vmax
 
@@ -104,7 +104,7 @@ def plot_noise(noise_cutout):
     return noise_8_sigma
 
 #===========================plot noise cutout image and histogram=====================================
-cut = noise_cutout(image, (80,80), 20)
+cut = noise_cutout(image, (20,20), 20)
 noise_8_sigma = (plot_noise(cut))
 # Define detect threshold
 threshold = noise_8_sigma
@@ -260,13 +260,67 @@ def corrected_r_eff():
 #r_eff = p_corrected.r_half_light
 print("CORRECTED HALF LIGHT RADIUS/ EFFECTIVE RADIUS r_eff: " , corrected_r_eff())
 
+def pet_aperture():
+    
+    position = get_source_position(source)
+    elong = get_source_elong(source)
+    theta = get_source_theta(source)
+    
+    #plots one aperture on image
+    p.imshow(position=position, elong=elong, theta=theta, lw=1.25)
+    
+    plt.imshow(image.data, vmax=vmax, vmin=vmin)
+    
+    plt.legend()
+    plt.show()
 
+large_aperture = pet_aperture()
+
+#-------------------------------PLOTTING MULTIPLE APERTURES---------------------------------
+#photometry loop 
+def multiple_apertures():
+    
+    max_pix=35
+    
+    r_list = make_radius_list(max_pix=max_pix, n=max_pix) 
+    #Max pixel to go up to and the number of radii to produce
+    
+    petrosian_properties = {}
+    
+    for idx, source in enumerate(cat):
+    
+        # Photometry
+        flux_arr, area_arr, error_arr = source_photometry(
+    
+            # Inputs
+            source, # Source (`photutils.segmentation.catalog.SourceCatalog`)
+            image.data, # Image as 2D array
+            segm_deblend, # Deblended segmentation map of image
+            r_list, # list of aperture radii
+    
+            # Options
+            cutout_size=max(r_list)*2, # Cutout out size, set to double the max radius
+            bkg_sub=True, # Subtract background
+            sigma=3, sigma_type='clip', # Fit a 2D plane to pixels within 3 sigma of the mean
+            plot=False, vmax=vmax, vmin=vmin, # Show plot with max and min defined above
+        )
+        plt.show()
+    
+        p = Petrosian(r_list, area_arr, flux_arr)
+    
+        petrosian_properties[source] = p
+    
+    print("Completed for {} Sources".format(len(petrosian_properties)))
+    return petrosian_properties
+
+petrosian_properties = multiple_apertures()
+"""
 path = "/home/s1929920/jwst"
 os.chdir(path)
 
 data = pd.read_csv("important_info_petro3.csv", usecols=["ID", "RA", "DEC", "redshift_50", "stellar_mass_50", "r_eff_150", "sersic_n_150", "r_eff_444", "sersic_n_444"])
 df = pd.DataFrame(data)
-
+"""
    
 """   
 df.loc[i, "r_eff_150"] = df2.iat[i,14].r_half_light

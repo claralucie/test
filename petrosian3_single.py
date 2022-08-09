@@ -44,7 +44,6 @@ image_list = sorted(os.listdir(path))
 #a = list(range(100, 110))
 
 
-
 def read_image(filename):
     image = CCDData.read(filename, unit="deg")
     return image
@@ -100,7 +99,7 @@ def plot_noise(image, noise_cutout, vmax, vmin):
     plt.title('Noise Histogram')
     plt.legend()
     
-    #plt.show()
+    plt.show()
     
     return noise_8_sigma
 
@@ -112,7 +111,7 @@ def plot_noise(image, noise_cutout, vmax, vmin):
 
 # Define smoothing kernel 
 kernel_size = 3
-fwhm = 3
+fwhm = 3 # might actually be 2 for JWST?
 npixels = 4**2
 
 #sigma = fwhm * gaussian_fwhm_to_sigma
@@ -172,7 +171,7 @@ def curve_of_growth(segm_deblend, rad_list, image, source, vmax, vmin):
         sigma=3, sigma_type='clip', # Fit a 2D plane to pixels within 3 sigma of the mean
         plot=False, vmax=vmax, vmin=vmin) # Show plot with max and min defined above
     
-    #plt.show()
+    plt.show()
 
     p = Petrosian(rad_list, area_arr, flux_arr)
     return p

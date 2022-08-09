@@ -28,18 +28,18 @@ import os
     
 def cutout(ra, dec, mos, size=5.):
     #wcs = WCS('WCSAXES')
-    wcs = WCS(mos[1].header)
+    wcs = WCS(mos[0].header)
     wcs.sip = None
     
-    if "CD1_1" in list(mos[1].header):
-        cdelt = np.abs(mos[1].header["CD1_1"]*3600.)
+    if "CD1_1" in list(mos[0].header):
+        cdelt = np.abs(mos[0].header["CD1_1"]*3600.)
         
-    elif "CDELT1" in list(mos[1].header):
-        cdelt = np.abs(mos[1].header["CDELT1"]*3600.)
+    elif "CDELT1" in list(mos[0].header):
+        cdelt = np.abs(mos[0].header["CDELT1"]*3600.)
         
     coord = SkyCoord(ra=ra, dec=dec, unit="deg")
     
-    cutout = Cutout2D(mos[1].data, coord, size/cdelt, wcs=wcs)
+    cutout = Cutout2D(mos[0].data, coord, size/cdelt, wcs=wcs)
     
     return cutout.data
 
@@ -50,10 +50,17 @@ filters = ["F115W", "F150W", "F200W", "F277W", "F356W", "F410M", "F444W"]
 
 #path = "/storage/teaching/SummerProjects2022/s1929920/MAST_2022-07-15T0707/JWST"
 #path = "/localdisk/MAST_2022-07-15T0707/JWST"
-path = "/storage/teaching/SummerProjects2022/s1929920/MAST_2022-07-15T0707/JWST"
+path = "/storage/teaching/SummerProjects2022/s1929920/derek_ceers_210722"
 os.chdir(path)
 
 #/localdisk/MAST_2022-07-15T0707/JWST
+images1 =  ["jwst_ceers_first_nircam_f115w_microJy_swarped.fits",
+            "jwst_ceers_first_nircam_f150w_microJy_swarped.fits",
+            "jwst_ceers_first_nircam_f200w_microJy_swarped.fits",
+            "jwst_ceers_first_nircam_f277w_microJy_swarped.fits",
+            "jwst_ceers_first_nircam_f356w_microJy_swarped.fits",
+            "jwst_ceers_first_nircam_f410m_microJy_swarped.fits",
+            "jwst_ceers_first_nircam_f444w_microJy_swarped.fits"]
 """
 images1 = ["./jw01345-o052_t022_nircam_clear-f200w/jw01345-o052_t022_nircam_clear-f200w_i2d.fits",
            "./jw01345-o052_t022_nircam_clear-f444w/jw01345-o052_t022_nircam_clear-f444w_i2d.fits"]
@@ -76,7 +83,7 @@ images1 = ["./jw01345-o003_t023_nircam_clear-f115w/jw01345-o003_t023_nircam_clea
            "./jw01345-o003_t023_nircam_clear-f410m/jw01345-o003_t023_nircam_clear-f410m_i2d.fits",
            "./jw01345-o003_t023_nircam_clear-f444w/jw01345-o003_t023_nircam_clear-f444w_i2d.fits"]
 """
-
+"""
 images1 = ["./jw01345-o002_t022_nircam_clear-f115w/jw01345-o002_t022_nircam_clear-f115w_i2d.fits",
            "./jw01345-o002_t022_nircam_clear-f150w/jw01345-o002_t022_nircam_clear-f150w_i2d.fits",
            "./jw01345-o002_t022_nircam_clear-f200w/jw01345-o002_t022_nircam_clear-f200w_i2d.fits",
@@ -84,7 +91,7 @@ images1 = ["./jw01345-o002_t022_nircam_clear-f115w/jw01345-o002_t022_nircam_clea
            "./jw01345-o002_t022_nircam_clear-f356w/jw01345-o002_t022_nircam_clear-f356w_i2d.fits",
            "./jw01345-o002_t022_nircam_clear-f410m/jw01345-o002_t022_nircam_clear-f410m_i2d.fits",
            "./jw01345-o002_t022_nircam_clear-f444w/jw01345-o002_t022_nircam_clear-f444w_i2d.fits"]
-
+"""
 """
 images1 = ["./jw01345-o001_t021_nircam_clear-f115w/jw01345-o001_t021_nircam_clear-f115w_i2d.fits",
            "./jw01345-o001_t021_nircam_clear-f150w/jw01345-o001_t021_nircam_clear-f150w_i2d.fits",
@@ -104,8 +111,8 @@ gs = mpl.gridspec.GridSpec(10,7, wspace= 0.05, hspace=0.2)
 
 all_axes = []
 
-ra = 214.89566 #214.76063 #214.86608 #214.89566 #214.9887625
-dec = 52.85652 #52.84534 #52.88423 #52.85652 #52.9905416667 
+ra = 214.8742375 #214.76063 #214.86608 #214.89566 #214.9887625
+dec = 52.88695833 #52.84534 #52.88423 #52.85652 #52.9905416667 
 size = 4
 
 j = 0
@@ -139,7 +146,7 @@ for i in range(7):
 
 all_axes[-1][0].set_ylabel(str(size) + "$^\{prime\prime}$ x" + str(size) + "$^{\prime\prime}$")
 
-hdu = fits.PrimaryHDU(data=cutout.data, header=mos[1].header)
+hdu = fits.PrimaryHDU(data=cutout.data, header=mos[0].header)
 hdu.header.update(cutout.wcs.to_header())
 hdu.writeto('test1_14727.fits', overwrite=True)
 
@@ -148,14 +155,14 @@ plt.show
 #plt.close()
 
 
-#cutout = Cutout2D(mos[1].data, position, size, wcs=wcs)
+#cutout = Cutout2D(mos[0].data, position, size, wcs=wcs)
 """
 cheader = cutout.wcs.to_header()
 primaryhdu = fits.PrimaryHDU(cutout.data, cheader)
 hdulist = fits.HDUList([primaryhdu])
 hdulist.writeto('please_work3.fits', overwrite=True)
   
-hdu = fits.PrimaryHDU(data=cutout.data, header=mos[1].header)
+hdu = fits.PrimaryHDU(data=cutout.data, header=mos[0].header)
 hdu.header.update(cutout.wcs.to_header())
 hdu.writeto('test1_14727.fits', overwrite=True)
 """

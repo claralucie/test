@@ -145,9 +145,9 @@ gs = mpl.gridspec.GridSpec(10,7, wspace= 0.05, hspace=0.2)
 #25727 214.79395, 52.84155
 
 
-ra = 215.039074 #98943    #14:19:39.4836
-dec = 53.002678    #98838    #52:56:34.9188
-size = 2
+ra = 214.9280917 #98943    #14:19:39.4836
+dec = 52.94646667    #98838    #52:56:34.9188
+size = 3
 
 all_axes = []
 
@@ -170,7 +170,7 @@ filters = ['115', '150', '200', '277', '356', '410', '444']
 hdu = fits.PrimaryHDU(data=cut.data, header=mos[0].header)
 hdu.header.update(cut.wcs.to_header())
 
-hdu.writeto('passive3_small_150.fits', overwrite=True)
+#hdu.writeto('passive3_small_150.fits', overwrite=True)
 
 #----------------------------------------------------------------------
 #w=cut.wcs

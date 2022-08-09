@@ -122,7 +122,7 @@ df3 = pd.DataFrame(data)
 
 r_eff = []
 
-for i in range(1, 1057, 2):
+for i in range(1, 11, 2):
     
     path = "/storage/teaching/SummerProjects2022/s1929920/derek_ceers_210722/petrofit_cutouts"
     os.chdir(path)
@@ -192,7 +192,7 @@ for i in range(1, 1057, 2):
                                   (df2.iat[i,12]).flux_list,
                                   epsilon = df2.iat[i,13])
         
-        df2.iat[i,14].plot(plot_r=False, plot_normalized_flux=False)
+        df2.iat[i,14].plot(plot_r=True, plot_normalized_flux=True)
         plt.show()
         
         #estim_n
@@ -215,7 +215,7 @@ for i in range(1, 1057, 2):
         df3.loc[(i-1)/2, "sersic_n_444"]= df2.iat[i,15]
         
         #df.loc[0, "sersic_n"] = p3.estimated_n()
-        df3.to_csv('z3_catalogue_fit.csv', header=True, index=None, sep=',', mode='w')
+        #df3.to_csv('z3_catalogue_fit.csv', header=True, index=None, sep=',', mode='w')
   
 
 #path = "/home/s1929920/jwst"
