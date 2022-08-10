@@ -43,7 +43,7 @@ image_list = sorted(os.listdir(path))
 
 #a = list(range(100, 110))
 
-filename = "aug09_4b_F444W.fits"
+filename = "24177_444.fits"
 
 def read_image(filename):
     image = CCDData.read(filename, unit="deg")

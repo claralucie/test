@@ -56,7 +56,7 @@ import petrosian3_single as p3
 path = "/home/s1929920/jwst"
 os.chdir(path)
 
-dfid = pd.read_csv('z3_catalogue.csv', usecols=["ID"])
+dfid = pd.read_csv('z4_catalogue.csv', usecols=["ID"])
 ID = dfid["ID"]
 image_list150 = []
 image_list444 = []
@@ -70,7 +70,7 @@ print(len(image_list150))
 path = "/storage/teaching/SummerProjects2022/s1929920/derek_ceers_210722/petrofit_cutouts"
 os.chdir(path)
 
-df2 = pd.DataFrame(np.zeros((1056, 16)), columns = ['read', 'vmax', 'vmin', 'cut', 'plot', 'noise_8_sigma',
+df2 = pd.DataFrame(np.zeros((1374, 16)), columns = ['read', 'vmax', 'vmin', 'cut', 'plot', 'noise_8_sigma',
                                                  'segment', 'deblend', 'categ', 'objects1', 'radius_list',
                                                  'source1', 'curve', 'estim_epsilon', 'p_corrected_test',
                                                  'estim_n'])
@@ -116,13 +116,13 @@ curve = np.zeros(10)
 """
 path = "/home/s1929920/jwst"
 os.chdir(path)
-data = pd.read_csv("z3_catalogue_fit.csv", usecols=["ID", "RA", "DEC", "redshift_50", "stellar_mass_50",
-                                                    "r_eff_150", "sersic_n_150", "r_eff_444", "sersic_n_444"])
+data = pd.read_csv("z4_catalogue.csv", usecols=["ID", "RA", "DEC", "redshift_50", "stellar_mass_50",
+                                                ])
 df3 = pd.DataFrame(data)
 
 r_eff = []
 
-for i in range(1, 11, 2):
+for i in range(1, 1375, 2):
     
     path = "/storage/teaching/SummerProjects2022/s1929920/derek_ceers_210722/petrofit_cutouts"
     os.chdir(path)
@@ -215,9 +215,102 @@ for i in range(1, 11, 2):
         df3.loc[(i-1)/2, "sersic_n_444"]= df2.iat[i,15]
         
         #df.loc[0, "sersic_n"] = p3.estimated_n()
-        #df3.to_csv('z3_catalogue_fit.csv', header=True, index=None, sep=',', mode='w')
+        df3.to_csv('z4_catalogue_fit.csv', header=True, index=None, sep=',', mode='w')
   
-
+for i in range(0, 1374, 2):
+    
+    path = "/storage/teaching/SummerProjects2022/s1929920/derek_ceers_210722/petrofit_cutouts"
+    os.chdir(path)
+        
+    df2.iat[i,0] = p3.read_image(image_list150[i]) #read
+    
+    df2.iat[i,1] = (df2.iat[i,0]).data.std() #vmax
+    df2.iat[i,2] = -(df2.iat[i,1]) #vmin
+    #print(df2.iat[i,2])
+    df2.iat[i,3] = p3.noise_cutout(df2.iat[i,0], (20,20), 20) #cut
+    df2.iat[i,4] = p3.plot_noise(df2.iat[i,0], df2.iat[i,3], df2.iat[i,1], df2.iat[i,2]) #plot
+    df2.iat[i,5] = df2.iat[i,4] #noise_8_sigma
+        
+    try:
+        df2.iat[i,6] = (p3.segmentation(df2.iat[i,0], df2.iat[i,5], df2.iat[i,1], df2.iat[i,2])) #segment
+    
+    except ValueError:
+        print("an error occurred")
+    
+    else:
+        #print("segment:" , df2.iat[i,6])
+        df2.iat[i,7] = df2.iat[i,6][2] #deblend
+        df2.iat[i,8] = df2.iat[i,6][0] # categ
+        df2.iat[i,9] = p3.objects(df2.iat[i,8]) #objects1
+        #print("objects1: ", df2.iat[i,9][0])
+        df2.iat[i,10] = df2.iat[i,9][0] #radius_list
+        #print("radius_list: ", df2.iat[i,10])
+        df2.iat[i,11] = df2.iat[i,9][1] #source1
+        df2.iat[i,12] = p3.curve_of_growth(df2.iat[i,7], df2.iat[i,10], df2.iat[i,0], df2.iat[i,11], df2.iat[i,1], df2.iat[i,2]) #curve
+        #df2.iat[i,7] = 
+        """
+        #read[i] = CCDData.read(image_list[i], unit="deg")
+        #print(read.shape)
+        read[i] = p3.read_image(image_list[i])
+        #file[i]=(image_list[i])
+        #read.insert(i, p3.read_image(image_list[i]))
+        #read.append(p3.read_image(image_list[i]))
+        vmax1[i] = (read.data.std())
+        vmin1[i] = -vmax1[i] 
+        cut1 = p3.noise_cutout(read, (20,80), 20)
+        plot[i] = p3.plot_noise(read, cut1, vmax1[i], vmin1[i])
+        noise_8_sigma_1[i] = plot[i]
+        threshold1[i] = noise_8_sigma_1[i]
+        
+        segment=(p3.segmentation(read, threshold1[i], vmax1[i], vmin1[i]))
+        deblend = segment[2]
+        categ = segment[0]
+        objects1 = p3.objects(categ )
+        radius_list = objects1[0]
+        source1 = objects1[1]
+        curve = p3.curve_of_growth(deblend, radius_list, read, source1, vmax1[i], vmin1[i])
+        """
+        path = "/home/s1929920/jwst/psf_lw"
+        os.chdir(path)
+        
+        pcorr = PetrosianCorrection("f444w_correction_grid.yaml")
+        
+        path = "/home/s1929920/jwst"
+        os.chdir(path)
+        
+        #estim_epsilon
+        df2.iat[i,13] = pcorr.estimate_epsilon((df2.iat[i,12]).r_half_light, (df2.iat[i,12]).concentration_index()[-1])
+        
+        #p_corrected_test
+        df2.iat[i,14] = Petrosian((df2.iat[i,12]).r_list,
+                                  (df2.iat[i,12]).area_list,
+                                  (df2.iat[i,12]).flux_list,
+                                  epsilon = df2.iat[i,13])
+        
+        df2.iat[i,14].plot(plot_r=True, plot_normalized_flux=True)
+        plt.show()
+        
+        #estim_n
+        df2.iat[i,15] = pcorr.estimate_n((df2.iat[i,12]).r_half_light, (df2.iat[i,12]).concentration_index()[-1])
+        #estimated_n = pc.estimate_n(
+        #p.r_half_light,
+        #p.concentration_index()[-1]
+        
+        print("testing new: index is ", i, "effective radius is ", df2.iat[i,14].r_half_light)
+        
+        
+        r_eff.append(df2.iat[i,14].r_half_light)
+        
+        #print(r_eff)
+        
+        
+        #df.loc[(i-1)/2, "r_eff_444"] = df2.iat[i,14].r_half_light
+        #df.loc[(i-1)/2, "sersic_n_444"] = df2.iat[i, 15]
+        df3.loc[(i)/2, "r_eff_150"] = df2.iat[i,14].r_half_light
+        df3.loc[(i)/2, "sersic_n_150"]= df2.iat[i,15]
+        
+        #df.loc[0, "sersic_n"] = p3.estimated_n()
+        df3.to_csv('z4_catalogue_fit.csv', header=True, index=None, sep=',', mode='w')
 #path = "/home/s1929920/jwst"
 #os.chdir(path)
         

@@ -229,12 +229,76 @@ for i in range(len(r_eff_150_3)):
 #FIGURE 4 - RADIUS RATIO
 plt.figure()
 ax = plt.subplot()
-plt.scatter(r_eff_150_total, r_eff_444_total)
+plt.scatter(r_eff_150_total, r_eff_444_total, s=2)
 plt.title("1.0 < z < 2.5")
 plt.xscale("log")
 plt.yscale("log")
+#plt.xlim(5e-02, 2e0)
+#plt.ylim(5e-02, 2e0)
 plt.xlabel("effective radius F150W")
 plt.ylabel("effective radius F444W")
+line = matplotlib.lines.Line2D([0, 1], [0, 1], color='red', linestyle ='dashed')
+transform = ax.transAxes
+line.set_transform(transform)
+ax.add_line(line)
+plt.show()
+plt.close()
+
+
+#--------------------------------------------------------------------------------------------------
+#FIGURE 5
+df4 = pd.read_csv("z4_catalogue_fit_nan2.csv", usecols=["ID", "RA", "DEC", "redshift_50", "stellar_mass_50",
+                                                          "r_eff_150", "sersic_n_150", "r_eff_444", "sersic_n_444",
+                                                          "value_is_NaN"])
+
+r_eff_150_4 = df4['r_eff_150'].tolist()
+sersic_n_150_4 = df4['sersic_n_150'].tolist()
+
+r_eff_150_arcsec_4 = np.zeros(len(r_eff_150_4))
+sersic_n_150_arcsec_4 = np.zeros(len(r_eff_150_4))
+
+r_eff_444_4 = df4['r_eff_444'].tolist()
+sersic_n_444_4 = df4['sersic_n_444'].tolist()
+
+r_eff_444_arcsec_4 = np.zeros(len(r_eff_150_4))
+sersic_n_444_arcsec_4 = np.zeros(len(r_eff_150_4))
+
+for i in range(len(r_eff_150_4)):
+    r_eff_150_arcsec_4[i] = r_eff_150_4[i] * 0.031
+    sersic_n_150_arcsec_4[i] = sersic_n_150_4[i] * 0.031
+    r_eff_444_arcsec_4[i] = r_eff_444_4[i] * 0.031
+    sersic_n_444_arcsec_4[i] = sersic_n_444_4[i] * 0.031
+
+
+mass_4 = df4['stellar_mass_50'].tolist()
+log_r_eff_ratio_4 = np.zeros(len(r_eff_150_4))
+
+for i in range(len(r_eff_150_4)):
+    log_r_eff_ratio_4[i] = np.log(r_eff_444_4[i]/r_eff_150_4[i])
+    
+for i in range(len(log_r_eff_ratio_4)):
+    if log_r_eff_ratio_4[i]>5:
+        print(log_r_eff_ratio_4[i], i)
+        
+plt.figure()
+plt.scatter(mass_4, log_r_eff_ratio_4)
+plt.title('z > 3.0')
+plt.xlabel("log(M*/M_solar)")
+plt.ylabel("log of r_eff ratio 444/150")
+plt.ylim(-0.75, 1.5)
+plt.axhline(y=0, xmin=9, xmax=11.5, c="black", linewidth=2, zorder=0)
+plt.plot(np.unique(mass_3), np.poly1d(np.polyfit(mass_3, log_r_eff_ratio_3, 1))(np.unique(mass_3)))
+plt.show()
+plt.close()
+
+plt.figure()
+ax = plt.subplot()
+plt.scatter(r_eff_150_4, r_eff_444_4, s=2)
+plt.title('radius, z>3')
+plt.xlabel("F150W effective radius")
+plt.ylabel("F444W effective radius")
+plt.xscale("log")
+plt.yscale("log")
 line = matplotlib.lines.Line2D([0, 1], [0, 1], color='red', linestyle ='dashed')
 transform = ax.transAxes
 line.set_transform(transform)

@@ -32,15 +32,15 @@ os.chdir(path)
 #-------------------------------------IMPORT IMAGE ---------------------------------
 
 
-image = CCDData.read("aug09_1_F150W.fits", unit="deg")
+image = CCDData.read("passive3_444.fits", unit="deg")
 vmax = image.data.std() # Use the image std as max and min of all plots
 vmin = - vmax
 
 
 #---------------------------------NOISE // DARK PATCH----------------------------------------
 def noise_cutout(image, pos, size):
-    pos = (225,225)
-    size = 50
+    pos = (20,80)
+    size = 20
     return Cutout2D(image, pos, size)
 
 
@@ -71,7 +71,7 @@ def plot_noise(noise_cutout):
     return noise_8_sigma
 
 #===========================plot noise cutout image and histogram=====================================
-cut = noise_cutout(image, (225,225), 50)
+cut = noise_cutout(image, (20,80), 20)
 noise_8_sigma = (plot_noise(cut))
 # Define detect threshold
 threshold = noise_8_sigma
@@ -304,7 +304,7 @@ plt.show()
 path = "/home/s1929920/jwst/psf_lw"
 os.chdir(path)
 
-pc = PetrosianCorrection("f150w_correction_grid.yaml")
+pc = PetrosianCorrection("f444w_correction_grid.yaml")
 
 estimated_n = pc.estimate_n(
     p.r_half_light,
@@ -349,7 +349,7 @@ compound_model = np.array(model_list).sum()
 print(compound_model)
 
 
-hdu = fits.open('PSF_F150Wcen_G5V_fov299px_ISIM41.fits')
+hdu = fits.open('PSF_F444Wcen_G5V_fov299px_ISIM41.fits')
 PSF = hdu[0].data
 PSF = PSF/PSF.sum()
 print("PSF shape = {} ".format(PSF.shape))
@@ -368,7 +368,7 @@ psf_sersic_model.fixed['psf_pa'] = True
 
 
 fitted_model, _ = fit_model(image.data, psf_sersic_model,
-                         maxiter=10000, epsilon=2, acc=1e-09) #epsilon = 1.4901161193847656e-08
+                         maxiter=10000, epsilon=2.3568506348709324, acc=1e-09) #epsilon = 1.4901161193847656e-08
 
 
 # Make Model Image
@@ -408,7 +408,7 @@ fig, ax = plt.subplots(2, 2, figsize=(15,15))
 
 # Plot raw data
 im = ax[0, 0].imshow(image.data, vmin=vmin, vmax=vmax)
-ax[0, 0].set_title("JWST F150W Image")
+ax[0, 0].set_title("JWST F444W Image")
 ax[0, 0].set_xlabel("Pixels")
 ax[0, 0].set_ylabel("Pixels")
 #ax[0, 0].axis('off')

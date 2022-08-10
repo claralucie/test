@@ -111,9 +111,9 @@ gs = mpl.gridspec.GridSpec(10,7, wspace= 0.05, hspace=0.2)
 
 all_axes = []
 
-ra = 214.8742375 #214.76063 #214.86608 #214.89566 #214.9887625
-dec = 52.88695833 #52.84534 #52.88423 #52.85652 #52.9905416667 
-size = 4
+ra = 214.914515  #214.76063 #214.86608 #214.89566 #214.9887625
+dec = 52.943033 #52.84534 #52.88423 #52.85652 #52.9905416667 
+size = 3
 
 j = 0
 
@@ -129,7 +129,7 @@ for i in range(7):
     
     all_axes[-1][i].imshow(np.flipud(cut), cmap="binary_r",
                            norm=Normalize(vmin=np.percentile(cut, 0.5),
-                                          vmax=np.percentile(cut, 99.5)))
+                                          vmax=np.percentile(cut, 97)))
     plt.setp(all_axes[-1][i].get_xticklabels(), visible=False)
     plt.setp(all_axes[-1][i].get_yticklabels(), visible=False)
     
@@ -142,17 +142,20 @@ for i in range(7):
             
     all_axes[-1][i].set_xticks([])
     all_axes[-1][i].set_yticks([])
-
-
+    
+    circle = plt.Circle((50, 48), 10, color = 'red', fill = False)
+    all_axes[-1][i].add_patch(circle)
+    
 all_axes[-1][0].set_ylabel(str(size) + "$^\{prime\prime}$ x" + str(size) + "$^{\prime\prime}$")
 
 hdu = fits.PrimaryHDU(data=cutout.data, header=mos[0].header)
 hdu.header.update(cutout.wcs.to_header())
-hdu.writeto('test1_14727.fits', overwrite=True)
+#hdu.writeto('test1_spiral.fits', overwrite=True)
 
 #plt.savefig("cutouts.pdf", bbox_inches="tight")
 plt.show
 #plt.close()
+
 
 
 #cutout = Cutout2D(mos[0].data, position, size, wcs=wcs)
